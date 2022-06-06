@@ -28,26 +28,60 @@ spark = SparkSession.builder.appName("TextClassificationwithPySpark")\
 spark_clase_pos = spark.read.csv('proyectos_clase_positiva.csv',
                                  header = True, inferSchema = True,
                                  sep = ';')
-spark_clase_pos = spark_clase_pos.withColumn("label", lit(0.0))
-spark_clase_pos = spark_clase_pos.select('nomProy', 'label')
+
 print("datos del dataset spark_clase_pos")
-print("Cantidad de filas en el dataset spark_clase_pos: {}"\
-      .format(spark_clase_pos.count()))
 spark_clase_pos.show(5)
+
+### Observing general information of a dataframe
+print("Hay 294 valores nulos en la columna codBPIN")
+print("31% de los datos de esa columna son nulos")
+print(spark_clase_pos.toPandas().info())
+### I observe that there are 244 null values in codBPIN column
+### 244/785 = 0.31 There is 31% of null values in codBPIN column
+
+
+
 
 
 spark_clase_neg = spark.read.csv('proyectos_clase_negativa.csv',
                                  header = True, inferSchema = True,
                                  sep = ';')
+
+print("datos del dataset spark_clase_neg")
+spark_clase_neg.show(5)
+
+### Observing general info of a dataframe
+print("Hay 2924 valores nulos en la columna codBPIN")
+print("45% de los datos de esa columna son nulos")
+print(spark_clase_neg.toPandas().info())
+### I observe that there are 2924 null values in codBPIN column
+# 2924/6472 = 0.45 There is 45% of null values in codBPIN
+
+### Omiting column codBPIN
+print("Se omite la columna codBPIN en los dos dataset porque ")
+print("es un índice con una cantidad considerable de datos nulos.")
+print("Por esa razón se crea una columna en cada dataset llamada label ")
+print("que representará a cada una de las clases.")
+## As we have a text classification problem the important column is
+## 'nomProy' and codBPIN just represent an index with a big percentage of
+## null values. For that reason codBPIN is removed and it is created
+## a new column called 'label' to represent each of the classes
+
+spark_clase_pos = spark_clase_pos.withColumn("label", lit(0.0))
+spark_clase_pos = spark_clase_pos.select('nomProy', 'label')
+
 spark_clase_neg = spark_clase_neg.withColumn("label", lit(1.0))
 spark_clase_neg = spark_clase_neg.select('nomProy', 'label')
 
-print("datos del dataset spark_clase_neg")
+### Counting rows of each dataset
+print("\nCantidad de filas en el dataset spark_clase_pos: {}"\
+      .format(spark_clase_pos.count()))
+    
 print("Cantidad de filas en el dataset spark_clase_neg: {}"\
       .format(spark_clase_neg.count()))
-spark_clase_neg.show(5)
 
-print("Los datos están desbalanceados.")
+
+print("\nLos datos están desbalanceados.")
 print("Sin embargo se continua en la construcción del modelo ")
 print("para saber como se comporta el modelo en datos no balanceados")
 
